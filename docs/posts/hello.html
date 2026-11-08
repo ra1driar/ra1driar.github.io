@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>第一篇文章 · 我的站点</title>
+<meta name="description" content="这个站点是怎么来的，以及下一篇怎么写。">
+<link rel="stylesheet" href="../style.css">
+<link rel="alternate" type="application/rss+xml" title="我的站点" href="../feed.xml">
+</head>
+<body>
+<header class="site-header">
+  <a class="site-title" href="../index.html">我的站点</a>
+</header>
+<main>
+<h1>第一篇文章</h1>
+<p class="meta"><time datetime="2026-11-08">2026-11-08</time></p>
+<p>这是一篇示例文章，用来验证构建脚本能跑通。看完之后把它删掉，或者直接改成你真正想写的内容。</p>
+<h2>目录结构</h2>
+<ul><li><code>posts/</code> 放 Markdown 原文，文件名是 <code>日期-slug.md</code></li><li><code>static/</code> 放样式表、图片、视频，构建时整体复制到 <code>docs/</code></li><li><code>docs/</code> 是构建产物，提交进仓库，GitHub Pages 直接托管这个目录</li></ul>
+<blockquote><p>维护成本的关键从来不是服务器，而是半年后你还记不记得怎么发布。</p></blockquote>
+<h2>代码</h2>
+<pre><code class="language-python">def hello(name):
+    print(f&quot;hello, {name}&quot;)
+
+hello(&quot;world&quot;)</code></pre>
+<h2>表格</h2>
+<table><thead><tr><th>项目</th><th>费用</th></tr></thead><tbody><tr><td>域名</td><td>没买</td></tr><tr><td>托管</td><td>0 元</td></tr><tr><td>视频</td><td>0 元</td></tr></tbody></table>
+<p>行内代码写成 <code>python3 build.py</code> 这样，链接写成 <a href="https://pages.github.com/">GitHub Pages</a>，还有<strong>加粗</strong>和<em>斜体</em>。</p>
+<h2>列表</h2>
+<ul><li>第一项</li><li>第二项</li><li>第三项</li></ul>
+<p>写完这篇，在仓库根目录执行：</p>
+<pre><code>python3 build.py</code></pre>
+</main>
+<footer class="site-footer">
+  <span>© 2026 xujinyang</span>
+  <a href="../feed.xml">RSS</a>
+</footer>
+</body>
+</html>

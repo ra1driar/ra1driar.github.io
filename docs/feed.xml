@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"><channel><title>我的站点</title><link>index.html</link><description>一些文章和视频。</description><language>zh-CN</language><item><title>第一篇文章</title><link>posts/hello.html</link><guid>posts/hello.html</guid><pubDate>Sun, 08 Nov 2026 00:00:00 +0800</pubDate><description>这个站点是怎么来的，以及下一篇怎么写。</description></item></channel></rss>
