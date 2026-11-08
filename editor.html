@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>写文章 · ra1driar 的内心</title>
+<style>
+  :root {
+    --bg: #f6f7f8;
+    --panel: #fff;
+    --fg: #18191c;
+    --muted: #61666d;
+    --line: #e3e5e7;
+    --blue: #00aeec;
+    --pink: #fb7299;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 14px/1.6 -apple-system, BlinkMacSystemFont, "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.25rem;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+  header strong { font-size: 15px; }
+  header a { color: var(--muted); text-decoration: none; font-size: 13px; }
+  header a:hover { color: var(--pink); }
+  .layout { display: flex; gap: 1rem; padding: 1rem; align-items: flex-start; }
+  aside {
+    width: 230px;
+    flex: 0 0 230px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.75rem;
+    max-height: calc(100vh - 90px);
+    overflow: auto;
+  }
+  aside button { width: 100%; margin-bottom: 0.6rem; }
+  aside ul { list-style: none; margin: 0; padding: 0; }
+  aside li {
+    padding: 0.45rem 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  aside li:hover { background: #f1f2f3; color: var(--fg); }
+  aside li.active { background: #e8f7fd; color: var(--blue); }
+  aside li .d { font-size: 11px; display: block; opacity: 0.75; }
+  main {
+    flex: 1;
+    min-width: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 12px; color: var(--muted); }
+  label.grow { flex: 1; min-width: 200px; }
+  input, select, textarea, button {
+    font: inherit;
+    color: var(--fg);
+  }
+  input, select, textarea {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0.45rem 0.55rem;
+    background: #fff;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--blue); }
+  textarea {
+    width: 100%;
+    min-height: 300px;
+    resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  button {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 6px;
+    padding: 0.45rem 0.9rem;
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--blue); color: var(--blue); }
+  button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  button.primary:hover { background: #00a0d8; color: #fff; }
+  button.danger:hover { border-color: #d33; color: #d33; }
+  .actions { display: flex; align-items: center; gap: 0.6rem; margin: 0.75rem 0; flex-wrap: wrap; }
+  #status { font-size: 12px; color: var(--muted); white-space: pre-wrap; }
+  #status.ok { color: #1a9c4b; }
+  #status.err { color: #d33; }
+  .preview-title { font-size: 12px; color: var(--muted); margin: 1rem 0 0.35rem; }
+  iframe {
+    width: 100%;
+    height: 480px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+  }
+  @media (max-width: 800px) {
+    .layout { flex-direction: column; }
+    aside { width: 100%; flex: none; max-height: 220px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <strong>写文章</strong>
+  <a href="https://ra1driar.github.io/" target="_blank">看线上站点 ↗</a>
+</header>
+
+<div class="layout">
+  <aside>
+    <button id="new">+ 新文章</button>
+    <ul id="list"></ul>
+  </aside>
+
+  <main>
+    <div class="row">
+      <label class="grow">标题
+        <input id="title" placeholder="文章标题">
+      </label>
+      <label>日期
+        <input id="date" type="date">
+      </label>
+      <label>专栏
+        <select id="column"></select>
+      </label>
+      <label>网址
+        <input id="slug" placeholder="hello" size="12">
+      </label>
+    </div>
+
+    <div class="row">
+      <label class="grow">摘要
+        <input id="summary" placeholder="留空则自动取正文前 90 字">
+      </label>
+      <label class="grow">视频
+        <input id="video" placeholder="videos/demo.mp4，可留空">
+      </label>
+      <label>草稿
+        <select id="draft">
+          <option value="">否</option>
+          <option value="1">是</option>
+        </select>
+      </label>
+    </div>
+
+    <label>正文（Markdown）
+      <textarea id="body" placeholder="在这里写正文……"></textarea>
+    </label>
+
+    <div class="actions">
+      <button id="save">保存并构建</button>
+      <button id="publish" class="primary">发布到线上</button>
+      <button id="delete" class="danger">删除</button>
+      <span id="status"></span>
+    </div>
+
+    <div class="preview-title">预览（用站点同一套样式）</div>
+    <iframe id="preview"></iframe>
+  </main>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let currentFile = "";
+let slugTouched = false;
+let now = "0000";
+let timer = null;
+
+function status(text, kind) {
+  const el = $("status");
+  el.textContent = text;
+  el.className = kind || "";
+}
+
+async function api(path, data) {
+  const opt = data === undefined ? {} : {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  };
+  const res = await fetch(path, opt);
+  const type = res.headers.get("content-type") || "";
+  if (type.includes("application/json")) return res.json();
+  return res.text();
+}
+
+function slugify(text) {
+  return (text || "").toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function autoSlug() {
+  if (slugTouched) return;
+  $("slug").value = slugify($("title").value) || ("post-" + now);
+}
+
+async function loadList() {
+  const posts = await api("/api/posts");
+  const ul = $("list");
+  ul.innerHTML = "";
+  posts.forEach((p) => {
+    const li = document.createElement("li");
+    if (p.file === currentFile) li.className = "active";
+    li.innerHTML = '<span class="d">' + p.date + " · " + (p.column || "未分类") +
+      (p.draft ? " · 草稿" : "") + "</span>";
+    li.appendChild(document.createTextNode(p.title));
+    li.onclick = () => openPost(p.file);
+    ul.appendChild(li);
+  });
+}
+
+async function openPost(file) {
+  const p = await api("/api/post?file=" + encodeURIComponent(file));
+  if (p.error) { status(p.error, "err"); return; }
+  currentFile = file;
+  slugTouched = true;
+  $("title").value = p.title;
+  $("date").value = p.date;
+  $("column").value = p.column;
+  $("slug").value = p.slug;
+  $("summary").value = p.summary;
+  $("video").value = p.video;
+  $("draft").value = p.draft ? "1" : "";
+  $("body").value = p.body;
+  status("");
+  loadList();
+  doPreview();
+}
+
+function newPost() {
+  currentFile = "";
+  slugTouched = false;
+  $("title").value = "";
+  $("date").value = new Date().toISOString().slice(0, 10);
+  $("column").value = "";
+  $("summary").value = "";
+  $("video").value = "";
+  $("draft").value = "";
+  $("body").value = "";
+  autoSlug();
+  status("新文章");
+  loadList();
+  doPreview();
+}
+
+function collect() {
+  return {
+    file: currentFile,
+    title: $("title").value,
+    date: $("date").value,
+    column: $("column").value,
+    slug: $("slug").value,
+    summary: $("summary").value,
+    video: $("video").value,
+    draft: $("draft").value === "1",
+    body: $("body").value,
+  };
+}
+
+async function save() {
+  status("保存中…");
+  const res = await api("/api/save", collect());
+  if (res.error) { status(res.error, "err"); return null; }
+  currentFile = res.file;
+  status(res.ok ? "已保存并构建" : ("构建失败：\n" + res.log), res.ok ? "ok" : "err");
+  loadList();
+  return res;
+}
+
+async function publish() {
+  status("发布中…");
+  const res = await api("/api/publish", collect());
+  if (res.error) { status(res.error, "err"); return; }
+  currentFile = res.file;
+  status(res.ok ? "已发布，等一两分钟生效\n" + res.log : ("发布失败：\n" + res.log),
+         res.ok ? "ok" : "err");
+  loadList();
+}
+
+async function remove() {
+  if (!currentFile) { status("先选中一篇文章", "err"); return; }
+  if (!confirm("确定删除《" + $("title").value + "》？")) return;
+  const res = await api("/api/delete", { file: currentFile });
+  status(res.ok ? "已删除" : ("删除失败：\n" + res.log), res.ok ? "ok" : "err");
+  if (res.ok) newPost();
+}
+
+async function doPreview() {
+  const html = await api("/api/preview", { body: $("body").value });
+  $("preview").srcdoc = html;
+}
+
+function schedulePreview() {
+  clearTimeout(timer);
+  timer = setTimeout(doPreview, 500);
+}
+
+async function boot() {
+  const meta = await api("/api/meta");
+  now = meta.now;
+  const sel = $("column");
+  sel.innerHTML = '<option value="">（不归类）</option>';
+  meta.columns.forEach((c) => {
+    const o = document.createElement("option");
+    o.value = c.name;
+    o.textContent = c.name;
+    sel.appendChild(o);
+  });
+  $("date").value = meta.today;
+  $("title").oninput = autoSlug;
+  $("slug").oninput = () => { slugTouched = true; };
+  $("body").oninput = schedulePreview;
+  $("save").onclick = save;
+  $("publish").onclick = publish;
+  $("delete").onclick = remove;
+  $("new").onclick = newPost;
+  await loadList();
+  newPost();
+}
+
+boot();
+</script>
+</body>
+</html>
