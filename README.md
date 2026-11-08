@@ -119,7 +119,7 @@ draft: true                # 可选，true 时不参与构建
 正文从这儿开始。
 ```
 
-文件名必须是 `YYYY-MM-DD-slug.md`，`slug` 决定网址 `docs/posts/<slug>.html`。
+文件名必须是 `YYYY-MM-DD-slug.md`，`slug` 决定网址。有专栏的文章放在 `/columns/<专栏 key>` 对应的目录下，比如写了 `column: 随笔` 就是 `docs/essay/<slug>.html`；没有专栏的才放在 `docs/posts/` 下。
 
 ## 专栏
 

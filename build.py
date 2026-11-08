@@ -312,12 +312,13 @@ def post_list_html(posts, prefix="", show_column=False):
         meta = '<time datetime="%s">%s</time>' % (p["date_str"], p["date_str"])
         if show_column and p["column"]:
             meta += '<span class="post-column">%s</span>' % html.escape(p["column"]["name"])
+        folder = p["column"]["key"] if p["column"] else "posts"
         items.append(
-            '<li><a class="post-link" href="%sposts/%s.html">'
+            '<li><a class="post-link" href="%s%s/%s.html">'
             '<span class="post-meta">%s</span>'
             '<span class="post-title">%s</span>'
             '<span class="post-summary">%s</span></a></li>'
-            % (prefix, p["slug"], meta, html.escape(p["title"]), html.escape(p["summary"]))
+            % (prefix, folder, p["slug"], meta, html.escape(p["title"]), html.escape(p["summary"]))
         )
     return '<ul class="post-list">\n%s\n</ul>' % "\n".join(items)
 
@@ -378,8 +379,10 @@ def build():
 
     posts = load_posts()
 
-    # 文章页
-    (OUT / "posts").mkdir()
+    # 文章页：有专栏的放 /<column key>/ 下，没有的放 /posts/
+    folders = sorted({p["column"]["key"] if p["column"] else "posts" for p in posts})
+    for folder in folders:
+        (OUT / folder).mkdir()
     for p in posts:
         meta = '<time datetime="%s">%s</time>' % (p["date_str"], p["date_str"])
         if p["column"]:
@@ -398,7 +401,8 @@ def build():
 
         title = "%s · %s" % (p["title"], SITE_TITLE)
         page_html = page("\n".join(parts), title, p["summary"], "../")
-        (OUT / "posts" / (p["slug"] + ".html")).write_text(page_html, encoding="utf-8")
+        folder = p["column"]["key"] if p["column"] else "posts"
+        (OUT / folder / (p["slug"] + ".html")).write_text(page_html, encoding="utf-8")
 
     # 专栏页
     (OUT / "columns").mkdir()
@@ -436,7 +440,9 @@ def build():
         base = ""
     entries = []
     for p in posts:
-        link = base + "posts/" + p["slug"] + ".html" if base else "posts/" + p["slug"] + ".html"
+        folder = p["column"]["key"] if p["column"] else "posts"
+        rel = folder + "/" + p["slug"] + ".html"
+        link = base + rel if base else rel
         entries.append(
             "<item><title>%s</title><link>%s</link><guid>%s</guid>"
             "<pubDate>%s</pubDate>%s<description>%s</description></item>"
