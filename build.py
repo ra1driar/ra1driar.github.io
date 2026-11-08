@@ -68,6 +68,9 @@ def inline(text):
     )
     text = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)",
                   lambda m: _link(m.group(1), m.group(2)), text)
+    # 尖括号自动链接：<https://example.com>
+    text = re.sub(r"&lt;((?:https?|mailto):[^\s]+?)&gt;",
+                  lambda m: '<a href="%s">%s</a>' % (m.group(1), m.group(1)), text)
     text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
     text = re.sub(r"(?<!\w)__([^_]+)__(?!\w)", r"<strong>\1</strong>", text)
     text = re.sub(r"(?<!\*)\*([^*\n]+)\*(?!\*)", r"<em>\1</em>", text)
@@ -78,9 +81,11 @@ def inline(text):
 
 
 LIST_RE = re.compile(r"^([-*+]|\d+\.)\s+(.*)$")
+ITEM_RE = re.compile(r"^(\s*)([-*+]|\d+\.)\s+(.*)$")
 HEAD_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 HR_RE = re.compile(r"^(-{3,}|\*{3,}|_{3,})$")
 TABLE_SEP_RE = re.compile(r"^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?$")
+RAW_RE = re.compile(r"^</?[a-zA-Z][a-zA-Z0-9-]*(\s[^>]*)?/?>\s*$|^<!--")
 
 
 def _is_block_start(s):
@@ -88,8 +93,33 @@ def _is_block_start(s):
         HEAD_RE.match(s)
         or LIST_RE.match(s)
         or HR_RE.match(s)
-        or s.startswith((">", "```", "<", "|"))
+        or s.startswith((">", "```", "|"))
+        or RAW_RE.match(s)
     )
+
+
+def render_list(items):
+    """items: [(缩进, 是否有序, 文本), ...]，按缩进还原嵌套。"""
+    out, stack = [], []
+    for indent, ordered, text in items:
+        tag = "ol" if ordered else "ul"
+        if not stack:
+            out.append("<%s>" % tag)
+            stack.append((indent, tag))
+        elif indent > stack[-1][0]:
+            out.append("<%s>" % tag)
+            stack.append((indent, tag))
+        else:
+            out.append("</li>")
+            while len(stack) > 1 and indent < stack[-1][0]:
+                out.append("</%s>" % stack.pop()[1])
+                out.append("</li>")
+        out.append("<li>%s" % inline(html.escape(text)))
+
+    while stack:
+        out.append("</li>")
+        out.append("</%s>" % stack.pop()[1])
+    return "".join(out)
 
 
 def render_markdown(text):
@@ -116,10 +146,10 @@ def render_markdown(text):
             out.append("<pre><code%s>%s</code></pre>"
                        % (cls, html.escape("\n".join(buf))))
 
-        # 原始 HTML 块，整段原样输出
-        elif s.startswith("<"):
+        # 原始 HTML 块：从标签行开始，到空行为止，原样输出
+        elif RAW_RE.match(s):
             buf = []
-            while i < n and lines[i].strip() and lines[i].strip().startswith("<"):
+            while i < n and lines[i].strip():
                 buf.append(lines[i])
                 i += 1
             out.append("\n".join(buf))
@@ -163,18 +193,16 @@ def render_markdown(text):
             out.append("<table><thead><tr>%s</tr></thead><tbody>%s</tbody></table>"
                        % (thead, tbody))
 
-        # 列表（一层，不支持嵌套）
+        # 列表（按缩进支持嵌套）
         elif LIST_RE.match(s):
-            ordered = LIST_RE.match(s).group(1).endswith(".")
-            tag = "ol" if ordered else "ul"
             items = []
             while i < n:
-                mm = LIST_RE.match(lines[i].strip())
-                if not mm:
+                m = ITEM_RE.match(lines[i])
+                if not m:
                     break
-                items.append("<li>%s</li>" % inline(html.escape(mm.group(2))))
+                items.append((len(m.group(1)), m.group(2).endswith("."), m.group(3)))
                 i += 1
-            out.append("<%s>%s</%s>" % (tag, "".join(items), tag))
+            out.append(render_list(items))
 
         # 段落：单个换行保留为 <br>，方便中文排版
         else:
@@ -223,6 +251,15 @@ def plain_text(fragment, limit=90):
     text = html.unescape(re.sub(r"<[^>]+>", " ", fragment))
     text = re.sub(r"\s+", " ", text).strip()
     return text if len(text) <= limit else text[:limit].rstrip() + "…"
+
+
+def prefix_urls(fragment, prefix):
+    """文章页在 /posts/ 下，把相对链接补成相对站点根。"""
+    return re.sub(
+        r'(src|href)="(?!https?:|#|mailto:|/)([^"]*)"',
+        lambda m: '%s="%s%s"' % (m.group(1), prefix, m.group(2)),
+        fragment,
+    )
 
 
 def load_posts():
@@ -285,7 +322,7 @@ def build():
             parts.append('<figure class="video"><video controls preload="metadata" '
                          'playsinline src="../%s"%s></video></figure>'
                          % (p["video"], poster))
-        parts.append(p["body"])
+        parts.append(prefix_urls(p["body"], "../"))
 
         title = "%s · %s" % (p["title"], SITE_TITLE)
         page_html = page("\n".join(parts), title, p["summary"], "../")

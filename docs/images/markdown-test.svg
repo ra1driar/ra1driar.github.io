@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="200" viewBox="0 0 640 200" role="img" aria-label="Markdown 测试图">
+  <rect width="640" height="200" fill="#f4f4f1"/>
+  <rect x="0" y="0" width="640" height="6" fill="#1a5fb4"/>
+  <text x="32" y="100" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="30" fill="#1a1a1a">Markdown 渲染测试</text>
+  <text x="32" y="140" font-family="-apple-system, 'PingFang SC', sans-serif" font-size="15" fill="#6b6b66">static/images/markdown-test.svg</text>
+</svg>
