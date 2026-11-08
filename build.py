@@ -31,6 +31,7 @@ def load_site_config():
         "title": get("title", "我的站点"),
         "description": get("description", ""),
         "author": get("author", ""),
+        "domain": get("domain", ""),
         "url": get("url", ""),
     }
 
@@ -308,6 +309,8 @@ def build():
 
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
     (OUT / "robots.txt").write_text("User-agent: *\nDisallow: /\n", encoding="utf-8")
+    if SITE["domain"]:
+        (OUT / "CNAME").write_text(SITE["domain"] + "\n", encoding="utf-8")
 
     posts = load_posts()
 
@@ -345,7 +348,12 @@ def build():
         page(index_body, SITE_TITLE, SITE_DESC, ""), encoding="utf-8")
 
     # RSS
-    base = SITE_URL.rstrip("/") + "/" if SITE_URL else ""
+    if SITE_URL:
+        base = SITE_URL.rstrip("/") + "/"
+    elif SITE["domain"]:
+        base = "https://%s/" % SITE["domain"]
+    else:
+        base = ""
     entries = []
     for p in posts:
         link = base + "posts/" + p["slug"] + ".html" if base else "posts/" + p["slug"] + ".html"

@@ -39,6 +39,36 @@ python3 -m http.server 8123 --directory docs
 
 > 注意：免费账号要发布 Pages，仓库必须是 **public**，也就是文章原文对所有人可见。不介意就这样。
 
+## 绑定自己的域名
+
+1. 在注册商买一个域名
+2. `site.ini` 里填 `domain = example.com`，跑 `python3 build.py`
+3. 推送到 GitHub
+4. 仓库 Settings → Pages → Custom domain 填 `example.com`，Save
+5. 去 DNS 服务商加记录：
+
+| 类型 | 名称 | 值 |
+|---|---|---|
+| A | `@` | `185.199.108.153`、`185.199.109.153`、`185.199.110.153`、`185.199.111.153` |
+| AAAA | `@` | `2606:50c0:8000::153`、`2606:50c0:8001::153`、`2606:50c0:8002::153`、`2606:50c0:8003::153` |
+| CNAME | `www` | `<用户名>.github.io` |
+
+6. `dig example.com +short` 确认解析到上面四个 A 记录
+7. 回到 Settings → Pages，等 Custom domain 检查通过，勾上 **Enforce HTTPS**
+
+几个坑：
+
+- **先在第 4 步填域名，再去配 DNS**。反过来会留下被人抢注子域名的窗口。
+- `docs/CNAME` 是构建生成的，不要手写，下次构建会被覆盖。
+- 域名放在 Cloudflare 的话，先把代理关掉（灰云 / DNS only），等 GitHub 签发证书后再考虑开橙云；开橙云时 SSL/TLS 模式必须选 **Full**，否则会无限重定向。
+- 域名到期比服务器宕机常见得多，开自动续费。
+
+买域名的渠道：
+
+- **Cloudflare Registrar**：按成本价卖，没有加价，`.com` 大约 $10–11/年，域名必须用 Cloudflare DNS（免费）。
+- **Porkbun / Namecheap**：首年促销多，续费略贵。
+- **阿里云 / 腾讯云**：支付方便，`.cn` 需要实名；解析到 GitHub 不需要备案，因为服务器不在境内。
+
 ## 目录
 
 | 路径 | 是什么 | 谁来改 |
