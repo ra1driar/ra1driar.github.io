@@ -114,7 +114,7 @@ def git_publish(title):
 def preview_page(body):
     fragment = build.render_markdown(body or "")
     return ("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
-            "<link rel=\"stylesheet\" href=\"/style.css\"></head>"
+            "<base href=\"/\"><link rel=\"stylesheet\" href=\"/style.css\"></head>"
             "<body><main>%s</main></body></html>" % fragment)
 
 
@@ -148,6 +148,12 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, EDITOR.read_text(encoding="utf-8"), "text/html")
         elif path == "/style.css":
             self._send(200, (ROOT / "static" / "style.css").read_bytes(), "text/css")
+        elif path.startswith(("/images/", "/videos/")):
+            target = (ROOT / "static" / path.lstrip("/")).resolve()
+            if target.is_file() and str(target).startswith(str(ROOT / "static")):
+                self._send(200, target.read_bytes(), "application/octet-stream")
+            else:
+                self._send(404, "not found", "text/plain")
         elif path == "/api/meta":
             self._json({
                 "today": date.today().isoformat(),
