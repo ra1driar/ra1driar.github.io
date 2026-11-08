@@ -74,6 +74,7 @@ python3 -m http.server 8123 --directory docs
 | 路径 | 是什么 | 谁来改 |
 |---|---|---|
 | `posts/` | 文章原文，Markdown + front matter | 你，用编辑器 |
+| `about.md` | 首页“为什么有这个东西”那段，纯 Markdown | 你 |
 | `static/` | 样式表、图片、视频，构建时整体复制进 `docs/` | 你 |
 | `site.ini` | 站点标题、描述、作者、URL | 你 |
 | `build.py` | 构建逻辑，不含任何内容数据 | 基本不用动 |

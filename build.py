@@ -33,6 +33,7 @@ def load_site_config():
         "author": get("author", ""),
         "domain": get("domain", ""),
         "url": get("url", ""),
+        "credit": get("credit", ""),
     }
 
 
@@ -238,12 +239,14 @@ def parse_front_matter(text):
 
 
 def page(body, page_title, description, root):
+    credit = "copilot by %s" % SITE["credit"] if SITE["credit"] else ""
     return (TEMPLATE
             .replace("{{body}}", body)
             .replace("{{page_title}}", html.escape(page_title))
             .replace("{{description}}", html.escape(description))
             .replace("{{site_title}}", html.escape(SITE_TITLE))
             .replace("{{author}}", html.escape(AUTHOR))
+            .replace("{{credit}}", html.escape(credit))
             .replace("{{year}}", str(datetime.now().year))
             .replace("{{root}}", root))
 
@@ -344,9 +347,16 @@ def build():
             % (p["slug"], p["date_str"], p["date_str"],
                html.escape(p["title"]), html.escape(p["summary"]))
         )
+    about_html = ""
+    about_path = ROOT / "about.md"
+    if about_path.exists():
+        about_html = ('\n<section class="about">\n%s\n</section>'
+                      % render_markdown(about_path.read_text(encoding="utf-8")))
+
     index_body = ('<h1>%s</h1>\n<p class="intro">%s</p>\n'
-                  '<ul class="post-list">\n%s\n</ul>'
-                  % (html.escape(SITE_TITLE), html.escape(SITE_DESC), "\n".join(items)))
+                  '<ul class="post-list">\n%s\n</ul>%s'
+                  % (html.escape(SITE_TITLE), html.escape(SITE_DESC),
+                     "\n".join(items), about_html))
     (OUT / "index.html").write_text(
         page(index_body, SITE_TITLE, SITE_DESC, ""), encoding="utf-8")
 
