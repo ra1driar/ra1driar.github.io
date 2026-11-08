@@ -317,7 +317,8 @@ def build():
     # 文章页
     (OUT / "posts").mkdir()
     for p in posts:
-        parts = ["<h1>%s</h1>" % html.escape(p["title"]),
+        parts = ["<article>",
+                 "<h1>%s</h1>" % html.escape(p["title"]),
                  '<p class="meta"><time datetime="%s">%s</time></p>'
                  % (p["date_str"], p["date_str"])]
         if p["video"]:
@@ -326,6 +327,7 @@ def build():
                          'playsinline src="../%s"%s></video></figure>'
                          % (p["video"], poster))
         parts.append(prefix_urls(p["body"], "../"))
+        parts.append("</article>")
 
         title = "%s · %s" % (p["title"], SITE_TITLE)
         page_html = page("\n".join(parts), title, p["summary"], "../")
@@ -335,10 +337,11 @@ def build():
     items = []
     for p in posts:
         items.append(
-            '<li><time datetime="%s">%s</time>'
-            '<a href="posts/%s.html">%s</a>'
-            '<p class="summary">%s</p></li>'
-            % (p["date_str"], p["date_str"], p["slug"],
+            '<li><a class="post-link" href="posts/%s.html">'
+            '<time datetime="%s">%s</time>'
+            '<span class="post-title">%s</span>'
+            '<span class="post-summary">%s</span></a></li>'
+            % (p["slug"], p["date_str"], p["date_str"],
                html.escape(p["title"]), html.escape(p["summary"]))
         )
     index_body = ('<h1>%s</h1>\n<p class="intro">%s</p>\n'
