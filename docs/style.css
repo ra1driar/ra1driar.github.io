@@ -1,20 +1,24 @@
 :root {
-  --bg: #fdfdfc;
-  --fg: #1a1a1a;
-  --muted: #6b6b66;
-  --line: #e4e4e0;
-  --code-bg: #f4f4f1;
-  --link: #1a5fb4;
+  --bg: #ffffff;
+  --fg: #18191c;
+  --muted: #61666d;
+  --line: #e3e5e7;
+  --code-bg: #f6f7f8;
+  --link: #00aeec;
+  --pink: #fb7299;
+  --pink-soft: #fff0f4;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #161615;
-    --fg: #e8e8e4;
-    --muted: #9a9a94;
-    --line: #2c2c2a;
-    --code-bg: #222220;
-    --link: #8ab4f8;
+    --bg: #17181a;
+    --fg: #e3e5e7;
+    --muted: #9499a0;
+    --line: #2f3134;
+    --code-bg: #1f2124;
+    --link: #33b8e6;
+    --pink: #ff85a8;
+    --pink-soft: rgba(251, 114, 153, 0.14);
   }
 }
 
@@ -31,6 +35,8 @@ body {
         "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 }
 
+::selection { background: var(--pink-soft); }
+
 a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
@@ -40,14 +46,25 @@ a:hover { text-decoration: underline; }
 }
 
 .site-header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
   padding: 2.5rem 0 1.25rem;
-  border-bottom: 1px solid var(--line);
   margin-bottom: 2.5rem;
+}
+
+.site-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--link), var(--pink));
 }
 
 .site-title {
@@ -58,7 +75,7 @@ a:hover { text-decoration: underline; }
   text-decoration: none;
 }
 
-.site-title:hover { text-decoration: none; }
+.site-title:hover { text-decoration: none; color: var(--pink); }
 
 .site-nav {
   display: flex;
@@ -68,7 +85,7 @@ a:hover { text-decoration: underline; }
 }
 
 .site-nav a { color: var(--muted); text-decoration: none; }
-.site-nav a:hover { color: var(--link); text-decoration: none; }
+.site-nav a:hover { color: var(--pink); text-decoration: none; }
 
 main { padding-bottom: 3rem; }
 
@@ -81,7 +98,7 @@ p { margin: 0 0 1.1rem; }
 
 .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
 .meta a { color: var(--muted); }
-.meta a:hover { color: var(--link); }
+.meta a:hover { color: var(--pink); }
 
 pre {
   background: var(--code-bg);
@@ -105,7 +122,7 @@ pre code { background: none; padding: 0; font-size: inherit; }
 blockquote {
   margin: 0 0 1.1rem;
   padding-left: 1rem;
-  border-left: 3px solid var(--line);
+  border-left: 3px solid var(--pink);
   color: var(--muted);
 }
 
@@ -147,7 +164,11 @@ li { margin: 0.25rem 0; }
 }
 
 .post-link:hover { text-decoration: none; }
-.post-link:hover .post-title { text-decoration: underline; }
+.post-link:hover .post-title {
+  color: var(--pink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 .post-meta {
   display: flex;
@@ -160,7 +181,14 @@ li { margin: 0.25rem 0; }
   margin-bottom: 0.2rem;
 }
 
-.post-column { color: var(--muted); font-size: 0.78rem; }
+.post-column {
+  color: var(--pink);
+  background: var(--pink-soft);
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 0.2rem 0.45rem;
+  border-radius: 3px;
+}
 
 .post-title {
   display: block;
@@ -198,7 +226,7 @@ li { margin: 0.25rem 0; }
 }
 
 .site-footer a { color: var(--muted); }
-.site-footer a:hover { color: var(--link); }
+.site-footer a:hover { color: var(--pink); }
 
 .credit { font-size: 0.75rem; }
 .credit:empty { display: none; }
