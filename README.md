@@ -109,7 +109,7 @@ python3 -m http.server 8123 --directory docs
 ---
 title: 标题
 date: 2026-11-08
-summary: 列表页和 RSS 里显示的一句话，可省略（省略时自动取正文前 90 字）
+summary: 列表页和 RSS 里显示的一句话，可省略（省略时自动取正文前 20 字）
 column: 随笔               # 专栏，见下文
 video: videos/demo.mp4     # 可选
 poster: videos/demo.jpg    # 可选，视频封面

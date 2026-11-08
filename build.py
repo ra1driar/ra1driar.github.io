@@ -289,7 +289,7 @@ def page(body, page_title, description, root):
             .replace("{{root}}", root))
 
 
-def plain_text(fragment, limit=90):
+def plain_text(fragment, limit=20):
     text = html.unescape(re.sub(r"<[^>]+>", " ", fragment))
     text = re.sub(r"\s+", " ", text).strip()
     return text if len(text) <= limit else text[:limit].rstrip() + "…"
