@@ -416,16 +416,14 @@ def build():
                  "../"),
             encoding="utf-8")
 
-    # 首页
+    # 首页：开头是 about，然后是文章列表；首页不重复站名
     about_html = ""
     about_path = ROOT / "about.md"
     if about_path.exists():
-        about_html = ('\n<section class="about">\n%s\n</section>'
+        about_html = ('<section class="about">\n%s\n</section>'
                       % render_markdown(about_path.read_text(encoding="utf-8")))
 
-    index_body = ('<h1>%s</h1>\n<p class="intro">%s</p>\n%s%s'
-                  % (html.escape(SITE_TITLE), html.escape(SITE_DESC),
-                     post_list_html(posts, show_column=True), about_html))
+    index_body = '%s\n%s' % (about_html, post_list_html(posts, show_column=True))
     (OUT / "index.html").write_text(
         page(index_body, SITE_TITLE, SITE_DESC, ""), encoding="utf-8")
 

@@ -282,20 +282,15 @@ li::marker { color: var(--muted); }
 }
 
 .about {
-  margin-top: 3.5rem;
-  padding-top: 2.25rem;
-  border-top: 1px solid var(--line);
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid var(--line);
 }
 
-.about h2 {
-  font-size: 1.02rem;
-  margin: 0 0 0.9rem;
-  letter-spacing: 0.01em;
-}
+.about h1 { margin-bottom: 1.1rem; }
 
 .about p {
   color: var(--muted);
-  font-size: 0.97rem;
+  font-size: 1rem;
   margin-bottom: 1rem;
 }
 
