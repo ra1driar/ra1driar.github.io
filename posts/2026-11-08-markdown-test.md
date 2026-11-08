@@ -1,6 +1,7 @@
 ---
 title: Markdown 渲染测试
 date: 2026-11-08
+column: 随笔
 summary: 把常用语法过一遍，看看构建结果对不对。测完可以删掉这篇。
 ---
 

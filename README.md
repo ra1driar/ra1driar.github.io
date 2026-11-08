@@ -77,6 +77,7 @@ python3 -m http.server 8123 --directory docs
 | `about.md` | 首页“为什么有这个东西”那段，纯 Markdown | 你 |
 | `static/` | 样式表、图片、视频，构建时整体复制进 `docs/` | 你 |
 | `site.ini` | 站点标题、描述、作者、URL | 你 |
+| `columns.ini` | 专栏定义（随笔 / 读后感 / topic discuss） | 你 |
 | `build.py` | 构建逻辑，不含任何内容数据 | 基本不用动 |
 | `template.html` | 页面骨架 | 想改结构时动 |
 | `docs/` | 构建产物，**不要手改**，改了会被下次构建覆盖 | 脚本 |
@@ -90,6 +91,7 @@ python3 -m http.server 8123 --directory docs
 title: 标题
 date: 2026-11-08
 summary: 列表页和 RSS 里显示的一句话，可省略（省略时自动取正文前 90 字）
+column: 随笔               # 专栏，见下文
 video: videos/demo.mp4     # 可选
 poster: videos/demo.jpg    # 可选，视频封面
 draft: true                # 可选，true 时不参与构建
@@ -99,6 +101,25 @@ draft: true                # 可选，true 时不参与构建
 ```
 
 文件名必须是 `YYYY-MM-DD-slug.md`，`slug` 决定网址 `docs/posts/<slug>.html`。
+
+## 专栏
+
+专栏定义在 `columns.ini`，文件里的顺序就是顶部导航的顺序：
+
+```ini
+[essay]
+name = 随笔
+description = 想到什么写什么。
+```
+
+文章 front matter 里写 `column: 随笔`（写 `column: essay` 也行），构建时会：
+
+- 在首页列表的日期后面显示专栏名
+- 生成 `docs/columns/essay.html`，列出该专栏的全部文章
+- 在 RSS 里加一个 `<category>`
+- 顶部导航自动带上这个专栏
+
+新增专栏只需要在 `columns.ini` 里加一段，`key` 决定网址，不用改代码。没有写 `column` 的文章不会出现在任何专栏页，只在首页。
 
 ## 加视频
 

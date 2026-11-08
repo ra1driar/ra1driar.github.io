@@ -45,6 +45,43 @@ SITE_URL = SITE["url"]  # 填上 GitHub Pages 地址后 RSS 里才是绝对链�
 
 TEMPLATE = (ROOT / "template.html").read_text(encoding="utf-8")
 
+COLUMNS_FILE = ROOT / "columns.ini"
+
+
+def load_columns():
+    """专栏定义。文件里的顺序就是导航顺序。"""
+    parser = configparser.ConfigParser()
+    parser.read(COLUMNS_FILE, encoding="utf-8")
+    columns = []
+    for key in parser.sections():
+        columns.append({
+            "key": key,
+            "name": parser.get(key, "name", fallback=key).strip(),
+            "description": parser.get(key, "description", fallback="").strip(),
+        })
+    return columns
+
+
+COLUMNS = load_columns()
+
+
+def find_column(value):
+    """front matter 里写中文名或 key 都能匹配。"""
+    wanted = (value or "").strip().lower()
+    if not wanted:
+        return None
+    for column in COLUMNS:
+        if wanted in (column["key"].lower(), column["name"].lower()):
+            return column
+    return None
+
+
+def nav_html(root):
+    links = ['<a href="%scolumns/%s.html">%s</a>'
+             % (root, c["key"], html.escape(c["name"])) for c in COLUMNS]
+    links.append('<a href="%sfeed.xml">RSS</a>' % root)
+    return "".join(links)
+
 
 # ---------- Markdown ----------
 
@@ -247,6 +284,7 @@ def page(body, page_title, description, root):
             .replace("{{site_title}}", html.escape(SITE_TITLE))
             .replace("{{author}}", html.escape(AUTHOR))
             .replace("{{credit}}", html.escape(credit))
+            .replace("{{nav}}", nav_html(root))
             .replace("{{year}}", str(datetime.now().year))
             .replace("{{root}}", root))
 
@@ -264,6 +302,24 @@ def prefix_urls(fragment, prefix):
         lambda m: '%s="%s%s"' % (m.group(1), prefix, m.group(2)),
         fragment,
     )
+
+
+def post_list_html(posts, prefix="", show_column=False):
+    if not posts:
+        return '<p class="empty">还没有文章。</p>'
+    items = []
+    for p in posts:
+        meta = '<time datetime="%s">%s</time>' % (p["date_str"], p["date_str"])
+        if show_column and p["column"]:
+            meta += '<span class="post-column">%s</span>' % html.escape(p["column"]["name"])
+        items.append(
+            '<li><a class="post-link" href="%sposts/%s.html">'
+            '<span class="post-meta">%s</span>'
+            '<span class="post-title">%s</span>'
+            '<span class="post-summary">%s</span></a></li>'
+            % (prefix, p["slug"], meta, html.escape(p["title"]), html.escape(p["summary"]))
+        )
+    return '<ul class="post-list">\n%s\n</ul>' % "\n".join(items)
 
 
 def load_posts():
@@ -287,6 +343,10 @@ def load_posts():
             raise SystemExit("文章日期格式不对（应为 YYYY-MM-DD）：%s" % path)
 
         rendered = render_markdown(body)
+        column = find_column(meta.get("column", ""))
+        if meta.get("column") and not column:
+            print("警告：%s 的 column「%s」不在 columns.ini 里，按未分类处理"
+                  % (path.name, meta.get("column")))
         posts.append({
             "path": path,
             "title": meta.get("title") or slug,
@@ -297,6 +357,7 @@ def load_posts():
             "body": rendered,
             "video": meta.get("video", ""),
             "poster": meta.get("poster", ""),
+            "column": column,
         })
 
     posts.sort(key=lambda p: (p["date"], p["title"]), reverse=True)
@@ -320,10 +381,13 @@ def build():
     # 文章页
     (OUT / "posts").mkdir()
     for p in posts:
+        meta = '<time datetime="%s">%s</time>' % (p["date_str"], p["date_str"])
+        if p["column"]:
+            meta += ' · <a href="../columns/%s.html">%s</a>' % (
+                p["column"]["key"], html.escape(p["column"]["name"]))
         parts = ["<article>",
                  "<h1>%s</h1>" % html.escape(p["title"]),
-                 '<p class="meta"><time datetime="%s">%s</time></p>'
-                 % (p["date_str"], p["date_str"])]
+                 '<p class="meta">%s</p>' % meta]
         if p["video"]:
             poster = ' poster="%s%s"' % ("../", p["poster"]) if p["poster"] else ""
             parts.append('<figure class="video"><video controls preload="metadata" '
@@ -336,27 +400,32 @@ def build():
         page_html = page("\n".join(parts), title, p["summary"], "../")
         (OUT / "posts" / (p["slug"] + ".html")).write_text(page_html, encoding="utf-8")
 
+    # 专栏页
+    (OUT / "columns").mkdir()
+    for column in COLUMNS:
+        column_posts = [p for p in posts
+                        if p["column"] and p["column"]["key"] == column["key"]]
+        chunks = ["<h1>%s</h1>" % html.escape(column["name"])]
+        if column["description"]:
+            chunks.append('<p class="intro">%s</p>' % html.escape(column["description"]))
+        chunks.append(post_list_html(column_posts, prefix="../"))
+        (OUT / "columns" / (column["key"] + ".html")).write_text(
+            page("\n".join(chunks),
+                 "%s · %s" % (column["name"], SITE_TITLE),
+                 column["description"] or SITE_DESC,
+                 "../"),
+            encoding="utf-8")
+
     # 首页
-    items = []
-    for p in posts:
-        items.append(
-            '<li><a class="post-link" href="posts/%s.html">'
-            '<time datetime="%s">%s</time>'
-            '<span class="post-title">%s</span>'
-            '<span class="post-summary">%s</span></a></li>'
-            % (p["slug"], p["date_str"], p["date_str"],
-               html.escape(p["title"]), html.escape(p["summary"]))
-        )
     about_html = ""
     about_path = ROOT / "about.md"
     if about_path.exists():
         about_html = ('\n<section class="about">\n%s\n</section>'
                       % render_markdown(about_path.read_text(encoding="utf-8")))
 
-    index_body = ('<h1>%s</h1>\n<p class="intro">%s</p>\n'
-                  '<ul class="post-list">\n%s\n</ul>%s'
+    index_body = ('<h1>%s</h1>\n<p class="intro">%s</p>\n%s%s'
                   % (html.escape(SITE_TITLE), html.escape(SITE_DESC),
-                     "\n".join(items), about_html))
+                     post_list_html(posts, show_column=True), about_html))
     (OUT / "index.html").write_text(
         page(index_body, SITE_TITLE, SITE_DESC, ""), encoding="utf-8")
 
@@ -372,9 +441,11 @@ def build():
         link = base + "posts/" + p["slug"] + ".html" if base else "posts/" + p["slug"] + ".html"
         entries.append(
             "<item><title>%s</title><link>%s</link><guid>%s</guid>"
-            "<pubDate>%s</pubDate><description>%s</description></item>"
+            "<pubDate>%s</pubDate>%s<description>%s</description></item>"
             % (html.escape(p["title"]), html.escape(link), html.escape(link),
                p["date"].strftime("%a, %d %b %Y 00:00:00 +0800"),
+               "<category>%s</category>" % html.escape(p["column"]["name"])
+               if p["column"] else "",
                html.escape(p["summary"]))
         )
     feed = ('<?xml version="1.0" encoding="utf-8"?>\n<rss version="2.0"><channel>'
