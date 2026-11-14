@@ -215,7 +215,7 @@ li { margin: 0.25rem 0; }
 
 .site-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: baseline;
   flex-wrap: wrap;
   gap: 0.5rem;
