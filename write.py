@@ -101,7 +101,7 @@ def git_publish(title):
                               capture_output=True, text=True)
 
     logs = []
-    add = run("add", "-A")
+    add = run("add", "posts", "docs")
     logs.append(add.stderr.strip())
     commit = run("commit", "-m", "post: %s" % title)
     logs.append((commit.stdout + commit.stderr).strip())
