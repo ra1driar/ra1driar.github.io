@@ -47,12 +47,33 @@
   aside button { width: 100%; margin-bottom: 0.6rem; }
   aside ul { list-style: none; margin: 0; padding: 0; }
   aside li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
     padding: 0.45rem 0.5rem;
     border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
     color: var(--muted);
   }
+  aside li .item-main { min-width: 0; }
+  aside li .t { display: block; color: var(--fg); }
+  aside li.active .t { color: var(--blue); }
+  aside li .hint {
+    font-size: 11px;
+    color: var(--blue);
+    opacity: 0;
+    flex: none;
+  }
+  aside li:hover .hint { opacity: 1; }
+  .aside-title {
+    font-size: 11px;
+    color: var(--muted);
+    margin: 0.15rem 0 0.35rem;
+    letter-spacing: 0.03em;
+  }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
   aside li:hover { background: #f1f2f3; color: var(--fg); }
   aside li.active { background: #e8f7fd; color: var(--blue); }
   aside li .d { font-size: 11px; display: block; opacity: 0.75; }
@@ -125,6 +146,7 @@
 <div class="layout">
   <aside>
     <button id="new">+ 新文章</button>
+    <div class="aside-title">点击标题即可编辑</div>
     <ul id="list"></ul>
   </aside>
 
@@ -180,6 +202,7 @@ const $ = (id) => document.getElementById(id);
 let currentFile = "";
 let slugTouched = false;
 let now = "0000";
+let today = "";
 let timer = null;
 
 function status(text, kind) {
@@ -217,10 +240,20 @@ async function loadList() {
   ul.innerHTML = "";
   posts.forEach((p) => {
     const li = document.createElement("li");
-    if (p.file === currentFile) li.className = "active";
-    li.innerHTML = '<span class="d">' + p.date + " · " + (p.column || "未分类") +
-      (p.draft ? " · 草稿" : "") + "</span>";
-    li.appendChild(document.createTextNode(p.title));
+    if (p.file === currentFile) li.classList.add("active");
+    const main = document.createElement("div");
+    main.className = "item-main";
+    const d = document.createElement("span");
+    d.className = "d";
+    d.textContent = p.date + " · " + (p.column || "未分类") + (p.draft ? " · 草稿" : "");
+    const title = document.createElement("span");
+    title.className = "t";
+    title.textContent = p.title;
+    main.append(d, title);
+    const hint = document.createElement("span");
+    hint.className = "hint";
+    hint.textContent = "编辑";
+    li.append(main, hint);
     li.onclick = () => openPost(p.file);
     ul.appendChild(li);
   });
@@ -239,7 +272,9 @@ async function openPost(file) {
   $("video").value = p.video;
   $("draft").value = p.draft ? "1" : "";
   $("body").value = p.body;
-  status("");
+  $("delete").disabled = false;
+  document.title = "编辑 · " + p.title;
+  status("正在编辑《" + p.title + "》");
   loadList();
   doPreview();
 }
@@ -248,13 +283,15 @@ function newPost() {
   currentFile = "";
   slugTouched = false;
   $("title").value = "";
-  $("date").value = new Date().toISOString().slice(0, 10);
+  $("date").value = today || new Date().toISOString().slice(0, 10);
   $("column").value = "";
   $("summary").value = "";
   $("video").value = "";
   $("draft").value = "";
   $("body").value = "";
   autoSlug();
+  $("delete").disabled = true;
+  document.title = "写文章 · ra1driar 的内心";
   status("新文章");
   loadList();
   doPreview();
@@ -315,6 +352,7 @@ function schedulePreview() {
 async function boot() {
   const meta = await api("/api/meta");
   now = meta.now;
+  today = meta.today;
   const sel = $("column");
   sel.innerHTML = '<option value="">（不归类）</option>';
   meta.columns.forEach((c) => {
@@ -331,6 +369,12 @@ async function boot() {
   $("publish").onclick = publish;
   $("delete").onclick = remove;
   $("new").onclick = newPost;
+  document.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+      e.preventDefault();
+      save();
+    }
+  });
   await loadList();
   newPost();
 }
