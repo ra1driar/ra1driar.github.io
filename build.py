@@ -310,12 +310,17 @@ def prefix_urls(fragment, prefix):
     )
 
 
+WEEKDAYS = "一二三四五六日"
+
+
 def post_list_html(posts, prefix="", show_column=False):
     if not posts:
         return '<p class="empty">还没有文章。</p>'
     items = []
     for p in posts:
-        meta = '<time datetime="%s">%s</time>' % (p["date_str"], p["date_str"])
+        weekday = "周" + WEEKDAYS[p["date"].weekday()]
+        meta = '<time datetime="%s">%s %s</time>' % (
+            p["date_str"], p["date_str"], weekday)
         if show_column and p["column"]:
             meta += '<span class="post-column">%s</span>' % html.escape(p["column"]["name"])
         folder = p["column"]["key"] if p["column"] else "posts"
