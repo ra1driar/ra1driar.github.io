@@ -161,6 +161,17 @@ def render_list(items):
     return "".join(out)
 
 
+def render_text(text):
+    """纯文本模式：每一行就是一段，不做 Markdown 解析。"""
+    lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    out = []
+    for line in lines:
+        line = line.strip()
+        if line:
+            out.append("<p>%s</p>" % html.escape(line))
+    return "\n".join(out)
+
+
 def render_markdown(text):
     lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
     out = []
@@ -276,7 +287,7 @@ def parse_front_matter(text):
 
 
 def page(body, page_title, description, root):
-    credit = "copilot by %s" % SITE["credit"] if SITE["credit"] else ""
+    credit = SITE["credit"]
     return (TEMPLATE
             .replace("{{body}}", body)
             .replace("{{page_title}}", html.escape(page_title))
@@ -343,7 +354,7 @@ def load_posts():
         except ValueError:
             raise SystemExit("文章日期格式不对（应为 YYYY-MM-DD）：%s" % path)
 
-        rendered = render_markdown(body)
+        rendered = render_text(body)
         column = find_column(meta.get("column", ""))
         if meta.get("column") and not column:
             print("警告：%s 的 column「%s」不在 columns.ini 里，按未分类处理"

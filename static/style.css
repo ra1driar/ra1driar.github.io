@@ -32,7 +32,8 @@ body {
   background: var(--bg);
   color: var(--fg);
   font: 17px/1.75 -apple-system, BlinkMacSystemFont, "PingFang SC",
-        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        "Hiragino Sans GB", "Microsoft YaHei", "Apple Color Emoji",
+        "Segoe UI Emoji", sans-serif;
 }
 
 ::selection { background: var(--pink-soft); }
@@ -95,6 +96,12 @@ h3 { font-size: 1.1rem; margin: 1.75rem 0 0.5rem; }
 h4, h5, h6 { font-size: 1rem; margin: 1.5rem 0 0.5rem; }
 
 p { margin: 0 0 1.1rem; }
+
+article > p:not(.meta) {
+  text-indent: 2em;
+  line-height: 1.95;
+  margin-bottom: 0.75rem;
+}
 
 .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
 .meta a { color: var(--muted); }

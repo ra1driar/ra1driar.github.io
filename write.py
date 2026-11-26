@@ -112,10 +112,10 @@ def git_publish(title):
 
 
 def preview_page(body):
-    fragment = build.render_markdown(body or "")
+    fragment = build.render_text(body or "")
     return ("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
             "<base href=\"/\"><link rel=\"stylesheet\" href=\"/style.css\"></head>"
-            "<body><main>%s</main></body></html>" % fragment)
+            "<body><main><article>%s</article></main></body></html>" % fragment)
 
 
 class Handler(BaseHTTPRequestHandler):
