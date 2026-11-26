@@ -162,14 +162,9 @@ def render_list(items):
 
 
 def render_text(text):
-    """纯文本模式：每一行就是一段，不做 Markdown 解析。"""
-    lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
-    out = []
-    for line in lines:
-        line = line.strip()
-        if line:
-            out.append("<p>%s</p>" % html.escape(line))
-    return "\n".join(out)
+    """纯文本模式：原样输出，保留空格、缩进和换行。"""
+    body = text.replace("\r\n", "\n").replace("\r", "\n")
+    return '<div class="plaintext">%s</div>' % html.escape(body.rstrip("\n"))
 
 
 def render_markdown(text):

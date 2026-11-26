@@ -97,10 +97,10 @@ h4, h5, h6 { font-size: 1rem; margin: 1.5rem 0 0.5rem; }
 
 p { margin: 0 0 1.1rem; }
 
-article > p:not(.meta) {
-  text-indent: 2em;
+.plaintext {
+  white-space: pre-wrap;
   line-height: 1.95;
-  margin-bottom: 0.75rem;
+  word-break: break-word;
 }
 
 .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
