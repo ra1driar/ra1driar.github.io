@@ -395,7 +395,9 @@ def build():
     for folder in folders:
         (OUT / folder).mkdir()
     for p in posts:
-        meta = '<time datetime="%s">%s</time>' % (p["date_str"], p["date_str"])
+        meta = '<time datetime="%s">%s %s</time>' % (
+            p["date_str"], p["date_str"],
+            "周" + WEEKDAYS[p["date"].weekday()])
         if p["column"]:
             meta += ' · <a href="../columns/%s.html">%s</a>' % (
                 p["column"]["key"], html.escape(p["column"]["name"]))
