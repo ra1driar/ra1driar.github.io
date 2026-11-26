@@ -164,7 +164,7 @@ def render_list(items):
 def render_text(text):
     """纯文本模式：原样输出，保留空格、缩进和换行。"""
     body = text.replace("\r\n", "\n").replace("\r", "\n")
-    return '<div class="plaintext">%s</div>' % html.escape(body.rstrip("\n"))
+    return '<div class="plaintext">%s</div>' % html.escape(body.strip("\n"))
 
 
 def render_markdown(text):
