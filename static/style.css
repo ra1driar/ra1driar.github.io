@@ -87,6 +87,18 @@ a:hover { text-decoration: underline; }
   background: linear-gradient(90deg, var(--link), var(--pink));
 }
 
+.site-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.site-tagline {
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
 .site-title {
   color: var(--fg);
   font-size: 1rem;

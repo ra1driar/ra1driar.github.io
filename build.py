@@ -281,12 +281,15 @@ def parse_front_matter(text):
     return meta, text
 
 
-def page(body, page_title, description, root, theme=""):
+def page(body, page_title, description, root, theme="", tagline=""):
     credit = SITE["credit"]
     body_class = ' class="theme-%s"' % theme if theme else ""
+    tagline_html = ('<span class="site-tagline">%s</span>' % html.escape(tagline)
+                    if tagline else "")
     return (TEMPLATE
             .replace("{{body}}", body)
             .replace("{{body_class}}", body_class)
+            .replace("{{tagline}}", tagline_html)
             .replace("{{page_title}}", html.escape(page_title))
             .replace("{{description}}", html.escape(description))
             .replace("{{site_title}}", html.escape(SITE_TITLE))
@@ -446,7 +449,8 @@ def build():
 
     index_body = '%s\n%s' % (about_html, post_list_html(posts, show_column=True))
     (OUT / "index.html").write_text(
-        page(index_body, SITE_TITLE, SITE_DESC, ""), encoding="utf-8")
+        page(index_body, SITE_TITLE, SITE_DESC, "",
+             tagline="追求真理，追求幸福"), encoding="utf-8")
 
     # RSS
     if SITE_URL:
