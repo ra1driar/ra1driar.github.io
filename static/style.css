@@ -9,6 +9,8 @@
   --pink-soft: #fff0f4;
   --card: #fbfcfe;
   --shadow: rgba(15, 40, 80, 0.08);
+  --theme: #00aeec;
+  --theme-soft: #e9f8fe;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,7 +25,20 @@
     --pink-soft: rgba(251, 114, 153, 0.14);
     --card: #1c1e21;
     --shadow: rgba(0, 0, 0, 0.35);
+    --theme: #33b8e6;
+    --theme-soft: rgba(51, 184, 230, 0.16);
   }
+}
+
+/* 专栏主题色 */
+.theme-essay { --theme: #fb7299; --theme-soft: #fff0f4; }
+.theme-reading { --theme: #00aeec; --theme-soft: #e9f8fe; }
+.theme-topic-discuss { --theme: #18191c; --theme-soft: #f1f2f3; }
+
+@media (prefers-color-scheme: dark) {
+  .theme-essay { --theme: #ff85a8; --theme-soft: rgba(255, 133, 168, 0.16); }
+  .theme-reading { --theme: #33b8e6; --theme-soft: rgba(51, 184, 230, 0.16); }
+  .theme-topic-discuss { --theme: #e3e5e7; --theme-soft: rgba(227, 229, 231, 0.12); }
 }
 
 * { box-sizing: border-box; }
@@ -104,28 +119,18 @@ p { margin: 0 0 1.1rem; }
 .plaintext {
   white-space: pre-wrap;
   word-break: break-word;
-  line-height: 2;
-  background: var(--card);
-  border: 1px solid var(--line);
+  font-size: 1.03rem;
+  letter-spacing: 0.01em;
+  line-height: 2.05;
+  background: color-mix(in srgb, var(--theme) 3%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--theme) 22%, var(--line));
   border-radius: 12px;
   padding: 2rem 2.1rem;
   box-shadow: 0 1px 1px var(--shadow), 0 18px 40px -28px var(--shadow);
-  position: relative;
-}
-
-.plaintext::before {
-  content: "";
-  position: absolute;
-  top: 2rem;
-  bottom: 2rem;
-  left: 0;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: linear-gradient(180deg, var(--link), var(--pink));
 }
 
 .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
-.meta a { color: var(--muted); }
+.meta a { color: var(--theme); }
 .meta a:hover { color: var(--pink); }
 
 pre {
@@ -210,8 +215,8 @@ li { margin: 0.25rem 0; }
 }
 
 .post-column {
-  color: var(--pink);
-  background: var(--pink-soft);
+  color: var(--theme);
+  background: var(--theme-soft);
   font-size: 0.75rem;
   line-height: 1;
   padding: 0.2rem 0.45rem;
@@ -262,6 +267,5 @@ li { margin: 0.25rem 0; }
 @media (max-width: 600px) {
   body { font-size: 16px; }
   h1 { font-size: 1.5rem; }
-  .plaintext { padding: 1.4rem 1.25rem; border-radius: 10px; }
-  .plaintext::before { top: 1.4rem; bottom: 1.4rem; }
+  .plaintext { padding: 1.4rem 1.25rem; border-radius: 10px; font-size: 1rem; }
 }

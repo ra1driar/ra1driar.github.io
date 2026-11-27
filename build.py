@@ -281,10 +281,12 @@ def parse_front_matter(text):
     return meta, text
 
 
-def page(body, page_title, description, root):
+def page(body, page_title, description, root, theme=""):
     credit = SITE["credit"]
+    body_class = ' class="theme-%s"' % theme if theme else ""
     return (TEMPLATE
             .replace("{{body}}", body)
+            .replace("{{body_class}}", body_class)
             .replace("{{page_title}}", html.escape(page_title))
             .replace("{{description}}", html.escape(description))
             .replace("{{site_title}}", html.escape(SITE_TITLE))
@@ -322,7 +324,8 @@ def post_list_html(posts, prefix="", show_column=False):
         meta = '<time datetime="%s">%s %s</time>' % (
             p["date_str"], p["date_str"], weekday)
         if show_column and p["column"]:
-            meta += '<span class="post-column">%s</span>' % html.escape(p["column"]["name"])
+            meta += '<span class="post-column theme-%s">%s</span>' % (
+            p["column"]["key"], html.escape(p["column"]["name"]))
         folder = p["column"]["key"] if p["column"] else "posts"
         items.append(
             '<li><a class="post-link" href="%s%s/%s.html">'
@@ -413,7 +416,8 @@ def build():
         parts.append("</article>")
 
         title = "%s · %s" % (p["title"], SITE_TITLE)
-        page_html = page("\n".join(parts), title, p["summary"], "../")
+        page_html = page("\n".join(parts), title, p["summary"], "../",
+                         p["column"]["key"] if p["column"] else "")
         folder = p["column"]["key"] if p["column"] else "posts"
         (OUT / folder / (p["slug"] + ".html")).write_text(page_html, encoding="utf-8")
 
@@ -430,7 +434,7 @@ def build():
             page("\n".join(chunks),
                  "%s · %s" % (column["name"], SITE_TITLE),
                  column["description"] or SITE_DESC,
-                 "../"),
+                 "../", column["key"]),
             encoding="utf-8")
 
     # 首页：开头是 about，然后是文章列表；首页不重复站名
