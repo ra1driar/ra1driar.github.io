@@ -445,7 +445,7 @@ def build():
         theme_key = COLOR_VAR.get(p["column"]["key"], "") if p["column"] else ""
         page_html = page("\n".join(parts), title, p["summary"], "../",
                          p["column"]["key"] if p["column"] else "",
-                         [theme_key] * 3)
+                         [theme_key])
         folder = p["column"]["key"] if p["column"] else "posts"
         (OUT / folder / (p["slug"] + ".html")).write_text(page_html, encoding="utf-8")
 
@@ -462,7 +462,7 @@ def build():
             page("\n".join(chunks),
                  "%s · %s" % (column["name"], SITE_TITLE),
                  column["description"] or SITE_DESC,
-                 "../", column["key"], [COLOR_VAR[column["key"]]] * 3),
+                 "../", column["key"], [COLOR_VAR[column["key"]]]),
             encoding="utf-8")
 
     # 首页：开头是 about，然后是文章列表；首页不重复站名
