@@ -77,10 +77,8 @@ def find_column(value):
 
 
 def nav_html(root):
-    links = ['<a href="%scolumns/%s.html">%s</a>'
-             % (root, c["key"], html.escape(c["name"])) for c in COLUMNS]
-    links.append('<a href="%sfeed.xml">RSS</a>' % root)
-    return "".join(links)
+    return "".join('<a href="%scolumns/%s.html">%s</a>'
+                   % (root, c["key"], html.escape(c["name"])) for c in COLUMNS)
 
 
 # ---------- Markdown ----------

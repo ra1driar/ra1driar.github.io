@@ -13,7 +13,7 @@
   --theme-soft: #e9f8fe;
   --c-essay: #fb7299;
   --c-reading: #00aeec;
-  --c-topic: #2f5d4a;
+  --c-topic: #3e7a63;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -32,14 +32,14 @@
     --theme-soft: rgba(51, 184, 230, 0.16);
     --c-essay: #ff85a8;
     --c-reading: #33b8e6;
-    --c-topic: #8fbfa8;
+    --c-topic: #9ecfb6;
   }
 }
 
 /* 专栏主题色 */
 .theme-essay { --theme: var(--c-essay); --theme-soft: #fff0f4; }
 .theme-reading { --theme: var(--c-reading); --theme-soft: #e9f8fe; }
-.theme-topic-discuss { --theme: var(--c-topic); --theme-soft: #e9f2ee; }
+.theme-topic-discuss { --theme: var(--c-topic); --theme-soft: #eaf4ef; }
 
 .c-essay { color: var(--c-essay); }
 .c-reading { color: var(--c-reading); }
