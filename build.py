@@ -76,9 +76,15 @@ def find_column(value):
     return None
 
 
-def nav_html(root):
-    return "".join('<a href="%scolumns/%s.html">%s</a>'
-                   % (root, c["key"], html.escape(c["name"])) for c in COLUMNS)
+def nav_html(root, active=""):
+    links = []
+    for c in COLUMNS:
+        cls = "theme-%s" % c["key"]
+        if c["key"] == active:
+            cls += " active"
+        links.append('<a class="%s" href="%scolumns/%s.html">%s</a>'
+                     % (cls, root, c["key"], html.escape(c["name"])))
+    return "".join(links)
 
 
 # ---------- Markdown ----------
@@ -309,10 +315,10 @@ def page(body, page_title, description, root, theme="", accent=None):
             .replace("{{page_title}}", html.escape(page_title))
             .replace("{{description}}", html.escape(description))
             .replace("{{site_title}}", html.escape(SITE_TITLE))
-            .replace("{{site_title_html}}", colorize(SITE_TITLE))
+            .replace("{{site_title_html}}", html.escape(SITE_TITLE))
             .replace("{{author}}", html.escape(AUTHOR))
             .replace("{{credit}}", html.escape(credit))
-            .replace("{{nav}}", nav_html(root))
+            .replace("{{nav}}", nav_html(root, theme))
             .replace("{{year}}", str(datetime.now().year))
             .replace("{{root}}", root))
 
@@ -465,13 +471,6 @@ def build():
     if about_path.exists():
         about_html = ('<section class="about">\n%s\n</section>'
                       % render_markdown(about_path.read_text(encoding="utf-8")))
-
-    tagline_html = '<p class="site-tagline">%s</p>' % colorize("追求真理，追求幸福")
-    if about_html and "</h1>" in about_html:
-        head, tail = about_html.split("</h1>", 1)
-        about_html = head + "</h1>\n" + tagline_html + tail
-    else:
-        about_html = tagline_html + "\n" + about_html
 
     recent = list(reversed(posts))[-12:]
     accent_keys = [COLOR_VAR.get(p["column"]["key"], "") if p["column"] else ""
