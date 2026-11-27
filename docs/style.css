@@ -11,6 +11,9 @@
   --shadow: rgba(15, 40, 80, 0.08);
   --theme: #00aeec;
   --theme-soft: #e9f8fe;
+  --c-essay: #fb7299;
+  --c-reading: #00aeec;
+  --c-topic: #1f3a5f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,18 +30,25 @@
     --shadow: rgba(0, 0, 0, 0.35);
     --theme: #33b8e6;
     --theme-soft: rgba(51, 184, 230, 0.16);
+    --c-essay: #ff85a8;
+    --c-reading: #33b8e6;
+    --c-topic: #93a9c7;
   }
 }
 
 /* 专栏主题色 */
-.theme-essay { --theme: #fb7299; --theme-soft: #fff0f4; }
-.theme-reading { --theme: #00aeec; --theme-soft: #e9f8fe; }
-.theme-topic-discuss { --theme: #18191c; --theme-soft: #f1f2f3; }
+.theme-essay { --theme: var(--c-essay); --theme-soft: #fff0f4; }
+.theme-reading { --theme: var(--c-reading); --theme-soft: #e9f8fe; }
+.theme-topic-discuss { --theme: var(--c-topic); --theme-soft: #eef1f6; }
+
+.c-essay { color: var(--c-essay); }
+.c-reading { color: var(--c-reading); }
+.c-topic { color: var(--c-topic); }
 
 @media (prefers-color-scheme: dark) {
-  .theme-essay { --theme: #ff85a8; --theme-soft: rgba(255, 133, 168, 0.16); }
-  .theme-reading { --theme: #33b8e6; --theme-soft: rgba(51, 184, 230, 0.16); }
-  .theme-topic-discuss { --theme: #e3e5e7; --theme-soft: rgba(227, 229, 231, 0.12); }
+  .theme-essay { --theme-soft: rgba(255, 133, 168, 0.16); }
+  .theme-reading { --theme-soft: rgba(51, 184, 230, 0.16); }
+  .theme-topic-discuss { --theme-soft: rgba(147, 169, 199, 0.14); }
 }
 
 * { box-sizing: border-box; }
@@ -87,16 +97,11 @@ a:hover { text-decoration: underline; }
   background: linear-gradient(90deg, var(--link), var(--pink));
 }
 
-.site-brand {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
 .site-tagline {
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   color: var(--muted);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
+  margin: 0 0 1.4rem;
 }
 
 .site-title {

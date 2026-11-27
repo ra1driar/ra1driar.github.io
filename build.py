@@ -281,18 +281,24 @@ def parse_front_matter(text):
     return meta, text
 
 
-def page(body, page_title, description, root, theme="", tagline=""):
+def colorize(text):
+    """给标题里的关键词上专栏色。"""
+    out = html.escape(text)
+    for word, cls in (("内心", "c-essay"), ("真理", "c-topic"), ("幸福", "c-reading")):
+        out = out.replace(word, '<span class="%s">%s</span>' % (cls, word))
+    return out
+
+
+def page(body, page_title, description, root, theme=""):
     credit = SITE["credit"]
     body_class = ' class="theme-%s"' % theme if theme else ""
-    tagline_html = ('<span class="site-tagline">%s</span>' % html.escape(tagline)
-                    if tagline else "")
     return (TEMPLATE
             .replace("{{body}}", body)
             .replace("{{body_class}}", body_class)
-            .replace("{{tagline}}", tagline_html)
             .replace("{{page_title}}", html.escape(page_title))
             .replace("{{description}}", html.escape(description))
             .replace("{{site_title}}", html.escape(SITE_TITLE))
+            .replace("{{site_title_html}}", colorize(SITE_TITLE))
             .replace("{{author}}", html.escape(AUTHOR))
             .replace("{{credit}}", html.escape(credit))
             .replace("{{nav}}", nav_html(root))
@@ -447,10 +453,16 @@ def build():
         about_html = ('<section class="about">\n%s\n</section>'
                       % render_markdown(about_path.read_text(encoding="utf-8")))
 
+    tagline_html = '<p class="site-tagline">%s</p>' % colorize("追求真理，追求幸福")
+    if about_html and "</h1>" in about_html:
+        head, tail = about_html.split("</h1>", 1)
+        about_html = head + "</h1>\n" + tagline_html + tail
+    else:
+        about_html = tagline_html + "\n" + about_html
+
     index_body = '%s\n%s' % (about_html, post_list_html(posts, show_column=True))
     (OUT / "index.html").write_text(
-        page(index_body, SITE_TITLE, SITE_DESC, "",
-             tagline="追求真理，追求幸福"), encoding="utf-8")
+        page(index_body, SITE_TITLE, SITE_DESC, ""), encoding="utf-8")
 
     # RSS
     if SITE_URL:
