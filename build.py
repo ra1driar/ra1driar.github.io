@@ -305,7 +305,6 @@ def colorize(text):
 
 
 def page(body, page_title, description, root, theme="", accent=None):
-    credit = SITE["credit"]
     body_class = ' class="theme-%s"' % theme if theme else ""
     accent = accent_html(accent or [])
     return (TEMPLATE
@@ -317,7 +316,6 @@ def page(body, page_title, description, root, theme="", accent=None):
             .replace("{{site_title}}", html.escape(SITE_TITLE))
             .replace("{{site_title_html}}", html.escape(SITE_TITLE))
             .replace("{{author}}", html.escape(AUTHOR))
-            .replace("{{credit}}", html.escape(credit))
             .replace("{{nav}}", nav_html(root, theme))
             .replace("{{year}}", str(datetime.now().year))
             .replace("{{root}}", root))
