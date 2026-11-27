@@ -281,6 +281,17 @@ def parse_front_matter(text):
     return meta, text
 
 
+COLOR_VAR = {"essay": "essay", "reading": "reading", "topic-discuss": "topic"}
+
+
+def accent_html(keys):
+    """顶部色块：每个 key 一段，按顺序排列。"""
+    keys = [k for k in keys if k]
+    if not keys:
+        keys = ["essay", "topic", "reading"]
+    return "".join('<i style="background: var(--c-%s)"></i>' % k for k in keys)
+
+
 def colorize(text):
     """给标题里的关键词上专栏色。"""
     out = html.escape(text)
@@ -289,12 +300,14 @@ def colorize(text):
     return out
 
 
-def page(body, page_title, description, root, theme=""):
+def page(body, page_title, description, root, theme="", accent=None):
     credit = SITE["credit"]
     body_class = ' class="theme-%s"' % theme if theme else ""
+    accent = accent_html(accent or [])
     return (TEMPLATE
             .replace("{{body}}", body)
             .replace("{{body_class}}", body_class)
+            .replace("{{accent}}", accent)
             .replace("{{page_title}}", html.escape(page_title))
             .replace("{{description}}", html.escape(description))
             .replace("{{site_title}}", html.escape(SITE_TITLE))
@@ -425,8 +438,10 @@ def build():
         parts.append("</article>")
 
         title = "%s · %s" % (p["title"], SITE_TITLE)
+        theme_key = COLOR_VAR.get(p["column"]["key"], "") if p["column"] else ""
         page_html = page("\n".join(parts), title, p["summary"], "../",
-                         p["column"]["key"] if p["column"] else "")
+                         p["column"]["key"] if p["column"] else "",
+                         [theme_key] * 3)
         folder = p["column"]["key"] if p["column"] else "posts"
         (OUT / folder / (p["slug"] + ".html")).write_text(page_html, encoding="utf-8")
 
@@ -443,7 +458,7 @@ def build():
             page("\n".join(chunks),
                  "%s · %s" % (column["name"], SITE_TITLE),
                  column["description"] or SITE_DESC,
-                 "../", column["key"]),
+                 "../", column["key"], [COLOR_VAR[column["key"]]] * 3),
             encoding="utf-8")
 
     # 首页：开头是 about，然后是文章列表；首页不重复站名
@@ -460,9 +475,13 @@ def build():
     else:
         about_html = tagline_html + "\n" + about_html
 
+    recent = list(reversed(posts))[-12:]
+    accent_keys = [COLOR_VAR.get(p["column"]["key"], "") if p["column"] else ""
+                   for p in recent]
+
     index_body = '%s\n%s' % (about_html, post_list_html(posts, show_column=True))
     (OUT / "index.html").write_text(
-        page(index_body, SITE_TITLE, SITE_DESC, ""), encoding="utf-8")
+        page(index_body, SITE_TITLE, SITE_DESC, "", accent=accent_keys), encoding="utf-8")
 
     # RSS
     if SITE_URL:
