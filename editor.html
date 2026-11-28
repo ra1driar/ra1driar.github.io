@@ -158,6 +158,9 @@
       <label>日期
         <input id="date" type="date">
       </label>
+      <label>时间
+        <input id="time" type="time">
+      </label>
       <label>专栏
         <select id="column"></select>
       </label>
@@ -203,6 +206,7 @@ let currentFile = "";
 let slugTouched = false;
 let now = "0000";
 let today = "";
+let nowTime = "00:00";
 let timer = null;
 
 function status(text, kind) {
@@ -266,6 +270,7 @@ async function openPost(file) {
   slugTouched = true;
   $("title").value = p.title;
   $("date").value = p.date;
+  $("time").value = p.time || "";
   $("column").value = p.column;
   $("slug").value = p.slug;
   $("summary").value = p.summary;
@@ -284,6 +289,7 @@ function newPost() {
   slugTouched = false;
   $("title").value = "";
   $("date").value = today || new Date().toISOString().slice(0, 10);
+  $("time").value = nowTime;
   $("column").value = "";
   $("summary").value = "";
   $("video").value = "";
@@ -302,6 +308,7 @@ function collect() {
     file: currentFile,
     title: $("title").value,
     date: $("date").value,
+    time: $("time").value,
     column: $("column").value,
     slug: $("slug").value,
     summary: $("summary").value,
@@ -353,6 +360,7 @@ async function boot() {
   const meta = await api("/api/meta");
   now = meta.now;
   today = meta.today;
+  nowTime = meta.now_time;
   const sel = $("column");
   sel.innerHTML = '<option value="">（不归类）</option>';
   meta.columns.forEach((c) => {

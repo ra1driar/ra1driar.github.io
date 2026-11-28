@@ -36,6 +36,7 @@ def read_post(path):
         "file": path.stem,
         "slug": m.group(2) if m else path.stem,
         "date": meta.get("date") or (m.group(1) if m else ""),
+        "time": meta.get("time", ""),
         "title": meta.get("title", path.stem),
         "column": meta.get("column", ""),
         "summary": meta.get("summary", ""),
@@ -64,7 +65,13 @@ def write_post(data):
     if not re.match(r"^[a-z0-9][a-z0-9-]*$", slug):
         raise ValueError("网址只能用小写字母、数字和连字符")
 
-    lines = ["---", "title: %s" % title, "date: %s" % day]
+    hhmm = (data.get("time") or "").strip()
+    if not hhmm:
+        hhmm = datetime.now().strftime("%H:%M")
+    if not re.match(r"^[0-2]\d:[0-5]\d$", hhmm):
+        raise ValueError("时间格式应为 HH:MM")
+
+    lines = ["---", "title: %s" % title, "date: %s" % day, "time: %s" % hhmm]
     if (data.get("column") or "").strip():
         lines.append("column: %s" % data["column"].strip())
     if (data.get("summary") or "").strip():
@@ -158,6 +165,7 @@ class Handler(BaseHTTPRequestHandler):
             self._json({
                 "today": date.today().isoformat(),
                 "now": datetime.now().strftime("%H%M"),
+                "now_time": datetime.now().strftime("%H:%M"),
                 "columns": [{"key": c["key"], "name": c["name"]} for c in build.COLUMNS],
             })
         elif path == "/api/posts":

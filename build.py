@@ -345,8 +345,9 @@ def post_list_html(posts, prefix="", show_column=False):
     items = []
     for p in posts:
         weekday = "周" + WEEKDAYS[p["date"].weekday()]
-        meta = '<time datetime="%s">%s %s</time>' % (
-            p["date_str"], p["date_str"], weekday)
+        stamp = p["date_str"] + " " + weekday + (" " + p["time"] if p["time"] else "")
+        dt = p["date_str"] + ("T" + p["time"] if p["time"] else "")
+        meta = '<time datetime="%s">%s</time>' % (dt, stamp)
         if show_column and p["column"]:
             meta += '<span class="post-column theme-%s">%s</span>' % (
             p["column"]["key"], html.escape(p["column"]["name"]))
@@ -391,6 +392,7 @@ def load_posts():
             "title": meta.get("title") or slug,
             "date": date,
             "date_str": date.strftime("%Y-%m-%d"),
+            "time": meta.get("time", "").strip(),
             "summary": meta.get("summary") or plain_text(rendered),
             "slug": slug,
             "body": rendered,
@@ -399,7 +401,7 @@ def load_posts():
             "column": column,
         })
 
-    posts.sort(key=lambda p: (p["date"], p["title"]), reverse=True)
+    posts.sort(key=lambda p: (p["date"], p["time"].rjust(5, "0"), p["title"]), reverse=True)
     return posts
 
 
@@ -422,9 +424,10 @@ def build():
     for folder in folders:
         (OUT / folder).mkdir()
     for p in posts:
-        meta = '<time datetime="%s">%s %s</time>' % (
-            p["date_str"], p["date_str"],
-            "周" + WEEKDAYS[p["date"].weekday()])
+        stamp = p["date_str"] + " " + "周" + WEEKDAYS[p["date"].weekday()] + (
+            " " + p["time"] if p["time"] else "")
+        dt = p["date_str"] + ("T" + p["time"] if p["time"] else "")
+        meta = '<time datetime="%s">%s</time>' % (dt, stamp)
         if p["column"]:
             meta += ' · <a href="../columns/%s.html">%s</a>' % (
                 p["column"]["key"], html.escape(p["column"]["name"]))
@@ -494,7 +497,8 @@ def build():
             "<item><title>%s</title><link>%s</link><guid>%s</guid>"
             "<pubDate>%s</pubDate>%s<description>%s</description></item>"
             % (html.escape(p["title"]), html.escape(link), html.escape(link),
-               p["date"].strftime("%a, %d %b %Y 00:00:00 +0800"),
+               p["date"].strftime("%a, %d %b %Y ") + (
+                   (p["time"] or "00:00") + ":00 +0800"),
                "<category>%s</category>" % html.escape(p["column"]["name"])
                if p["column"] else "",
                html.escape(p["summary"]))
